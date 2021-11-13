@@ -60,8 +60,8 @@ describe('Basic user flow for Website', () => {
     itemButton = itemButton[0];
     await itemButton.click();
     var buttonText = await itemButton.getProperty("innerHTML");
-    buttonText = buttonText.toString().split(":")[1];
-    expect(buttonText).toBe("Remove from Cart");
+    expect(buttonText["_remoteObject"].value).toBe("Remove from Cart");
+    await itemButton.click();
   }, 2500);
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
@@ -72,6 +72,16 @@ describe('Basic user flow for Website', () => {
     // Query select all of the <product-item> elements, then for every single product element
     // get the shadowRoot and query select the button inside, and click on it.
     // Check to see if the innerText of #cart-count is 20
+    const prodItems = await page.$$('product-item');
+    for(let i=0;i<prodItems.length;i++)
+    {
+        let itemButton = await prodItems[i].getProperty("shadowRoot");
+        itemButton = await itemButton.$("button");
+        await itemButton.click();
+    }
+    var cart = await page.$("#cart-count");
+    cart = await cart.getProperty("innerHTML");
+    expect(cart["_remoteObject"].value).toBe("20");
   }, 10000);
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
